@@ -1,0 +1,37 @@
+- name: Get server information
+  hosts: localhost
+  gather_facts: true
+
+  tasks:
+    - name: Define values
+      set_fact:
+        ip_address: "{{ ansible_default_ipv4.address }}"
+        hostname: "{{ ansible_hostname }}"
+        cpu_cores: "{{ ansible_processor_vcpus }}"
+        ram_mb: "{{ ansible_memtotal_mb }}"
+
+    - name: Get server IP address
+      debug:
+        var: ansible_default_ipv4.address
+
+    - name: Get hostname
+      debug:
+        var: ansible_hostname
+
+    - name: Get CPU
+      debug:
+        var: ansible_processor_vcpus
+
+    - name: Get RAM
+      debug:
+        var: ansible_memtotal_mb
+
+    - name: Send information to Postgress
+      postgresql_query:
+        login_host: "127.0.0.1" 
+        port: "5432"
+        db: "test"
+        login_user: "test"
+        login_password: "test"
+        query: "INSERT INTO server_info (ip_address, hostname, cpu_cores, ram_mb) VALUES ('{{ ip_address }}', '{{ hostname }}', '{{ cpu_cores }}', '{{ ram_mb }}');"
+      register: server_info  
